@@ -1,0 +1,16 @@
+# Money Mule Detection - Dependencies
+# Install with: pip install -r requirements.txt
+
+# TigerGraph
+pyTigerGraph>=1.0.0
+
+# Dashboard
+streamlit>=1.28.0
+
+# Visualization
+plotly>=5.18.0
+pandas>=2.0.0
+pyvis>=0.3.2
+
+# Network visualization backup
+networkx>=3.0

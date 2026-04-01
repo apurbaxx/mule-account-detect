@@ -16,6 +16,39 @@ This system uses **TigerGraph's graph database** to detect money mule patterns b
    - Shared devices across multiple accounts
    - Cross-channel activity within minutes
 
+## 🚀 Quick Start
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the visual dashboard (RECOMMENDED for demo)
+streamlit run dashboard.py
+
+# Or run console detection
+python demo.py
+```
+
+## 📊 Visual Dashboard
+
+The Streamlit dashboard provides:
+
+![Dashboard Preview](https://via.placeholder.com/800x400?text=Money+Mule+Detection+Dashboard)
+
+- **Dashboard Overview** - Real-time metrics and alerts
+- **Detection Results** - Detailed risk scores and factors
+- **Network Visualization** - Interactive graph of money flow
+- **Cross-Channel Analysis** - Sankey diagrams showing fund movements
+- **Device Analysis** - Identity linkage through shared devices
+
+### Run the Dashboard
+
+```bash
+streamlit run dashboard.py
+```
+
+Then open http://localhost:8501 in your browser.
+
 ## Architecture
 
 ```

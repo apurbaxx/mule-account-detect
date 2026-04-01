@@ -181,6 +181,3 @@ Account -[RECEIVED]-> Transaction (mobile_app, $5000)
 | `04_run_detection.py` | Runs detection and displays results |
 | `main.py` | Runs all steps in sequence |
 
-## License
-
-Created for IIT Delhi Hackathon 2024

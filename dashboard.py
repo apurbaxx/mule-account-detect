@@ -57,10 +57,24 @@ st.markdown("""
         border-radius: 10px;
         margin: 0.5rem 0;
     }
-    .stMetric {
-        background-color: #f0f2f6;
+    /* Fix for metric cards - dark text on light background */
+    [data-testid="stMetric"] {
+        background-color: #1e3a5f;
         padding: 1rem;
         border-radius: 10px;
+        border: 1px solid #2d5a87;
+    }
+    [data-testid="stMetric"] label {
+        color: #a0c4e8 !important;
+        font-weight: 600;
+    }
+    [data-testid="stMetric"] [data-testid="stMetricValue"] {
+        color: #ffffff !important;
+        font-size: 2rem !important;
+        font-weight: bold;
+    }
+    [data-testid="stMetric"] [data-testid="stMetricDelta"] {
+        color: #4ade80 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -550,12 +564,19 @@ def show_network(conn):
     # Create network
     net = create_network_graph(conn)
     
-    # Save and display
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.html') as f:
-        net.save_graph(f.name)
-        with open(f.name, 'r', encoding='utf-8') as html_file:
+    # Save and display - Fixed for Windows file locking
+    try:
+        # Create temp file, save graph, read content, then close properly
+        temp_path = os.path.join(tempfile.gettempdir(), 'network_graph.html')
+        net.save_graph(temp_path)
+        
+        with open(temp_path, 'r', encoding='utf-8') as html_file:
             html_content = html_file.read()
-        os.unlink(f.name)
+        
+        # Don't delete - let it be overwritten next time (avoids Windows lock issues)
+    except Exception as e:
+        st.error(f"Error creating network visualization: {e}")
+        html_content = "<p>Unable to load network visualization</p>"
     
     st.components.v1.html(html_content, height=550, scrolling=True)
     

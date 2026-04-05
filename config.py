@@ -19,8 +19,14 @@ import os
 
 # TigerGraph Configuration - supports environment variables for cloud deployment
 # For Streamlit Community Cloud, set these in secrets.toml or environment
+
+# For ngrok setup, use the GSQL tunnel (port 14240) as main host
+# since pyTigerGraph routes both REST and GSQL through the same host
+# REST API (port 9000): https://87ce-152-58-57-217.ngrok-free.app
+# GSQL Server (port 14240): https://d87b-152-58-57-217.ngrok-free.app
+
 TIGERGRAPH_CONFIG = {
-    "host": os.environ.get("TIGERGRAPH_HOST", "https://cd6d-139-167-143-182.ngrok-free.app"),
+    "host": os.environ.get("TIGERGRAPH_HOST", "https://d87b-152-58-57-217.ngrok-free.app"),
     "restppPort": os.environ.get("TIGERGRAPH_REST_PORT", "443"),
     "gsPort": os.environ.get("TIGERGRAPH_GS_PORT", "443"),
     "username": os.environ.get("TIGERGRAPH_USERNAME", "tigergraph"),

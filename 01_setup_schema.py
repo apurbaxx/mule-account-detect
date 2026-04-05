@@ -21,56 +21,84 @@ Edges capture relationships:
 
 from config import get_connection, TIGERGRAPH_CONFIG
 
-SCHEMA_GSQL = '''
-// Drop existing graph if exists (comment out if you want to keep data)
-DROP GRAPH IF EXISTS MoneyMuleGraph
-
-// Create the graph
-CREATE GRAPH MoneyMuleGraph()
-
-// Use the graph
-USE GRAPH MoneyMuleGraph
-
-// ===================
-// VERTEX DEFINITIONS
-// ===================
-
-// Account vertex - represents bank accounts, wallets, etc.
+def setup_schema():
+    """Create the TigerGraph schema"""
+    print("=" * 60)
+    print("STEP 1: Setting up TigerGraph Schema for Money Mule Detection")
+    print("=" * 60)
+    
+    conn, graph_name = get_connection()
+    
+    # Step 1: Try to drop existing graph (ignore errors if it doesn't exist)
+    print("\n[1/5] Dropping existing graph if present...")
+    try:
+        result = conn.gsql(f'DROP GRAPH {graph_name}')
+        print(result)
+    except Exception as e:
+        print(f"  Note: Graph may not exist yet - {str(e)[:50]}")
+    
+    # Step 2: Drop existing vertex/edge types (clean slate)
+    print("\n[2/5] Cleaning up existing types...")
+    types_to_drop = [
+        "DROP EDGE SUSPICIOUS_LINK",
+        "DROP EDGE SAME_OWNER", 
+        "DROP EDGE WALLET_TO_ACCOUNT",
+        "DROP EDGE VIA_WALLET",
+        "DROP EDGE WITHDREW_AT",
+        "DROP EDGE USED_DEVICE",
+        "DROP EDGE OWNS_DEVICE",
+        "DROP EDGE LINKED_WALLET",
+        "DROP EDGE RECEIVED",
+        "DROP EDGE SENT",
+        "DROP VERTEX Wallet",
+        "DROP VERTEX ATM",
+        "DROP VERTEX Device",
+        "DROP VERTEX Transaction",
+        "DROP VERTEX Account",
+    ]
+    for cmd in types_to_drop:
+        try:
+            conn.gsql(cmd)
+        except:
+            pass  # Ignore errors - types may not exist
+    print("  Cleanup complete")
+    
+    # Step 3: Create vertex types
+    print("\n[3/5] Creating vertex types...")
+    
+    vertex_gsql = '''
 CREATE VERTEX Account (
     PRIMARY_ID account_id STRING,
-    account_type STRING,        // "bank_account", "wallet", "crypto_wallet"
+    account_type STRING,
     holder_name STRING,
     created_date DATETIME,
     risk_score FLOAT DEFAULT 0.0,
-    is_flagged BOOL DEFAULT FALSE,
-    kyc_verified BOOL DEFAULT TRUE
+    is_flagged BOOL,
+    kyc_verified BOOL
 ) WITH primary_id_as_attribute="true"
 
-// Transaction vertex - individual financial transactions
 CREATE VERTEX Transaction (
     PRIMARY_ID txn_id STRING,
     amount FLOAT,
     currency STRING DEFAULT "USD",
     timestamp DATETIME,
-    channel STRING,             // "mobile_app", "web", "atm", "branch", "wallet_transfer"
-    txn_type STRING,            // "deposit", "withdrawal", "transfer", "payment"
+    channel STRING,
+    txn_type STRING,
     status STRING DEFAULT "completed",
     device_fingerprint STRING,
     ip_address STRING,
     geo_location STRING
 ) WITH primary_id_as_attribute="true"
 
-// Device vertex - devices used for transactions
 CREATE VERTEX Device (
     PRIMARY_ID device_id STRING,
-    device_type STRING,         // "mobile", "desktop", "tablet", "atm_terminal"
+    device_type STRING,
     os_type STRING,
     first_seen DATETIME,
     last_seen DATETIME,
-    is_trusted BOOL DEFAULT FALSE
+    is_trusted BOOL
 ) WITH primary_id_as_attribute="true"
 
-// ATM vertex - physical ATM locations
 CREATE VERTEX ATM (
     PRIMARY_ID atm_id STRING,
     bank_name STRING,
@@ -81,20 +109,25 @@ CREATE VERTEX ATM (
     longitude FLOAT
 ) WITH primary_id_as_attribute="true"
 
-// Wallet vertex - digital wallets (PayPal, Venmo, crypto, etc.)
 CREATE VERTEX Wallet (
     PRIMARY_ID wallet_id STRING,
-    wallet_type STRING,         // "paypal", "venmo", "crypto", "mobile_wallet"
+    wallet_type STRING,
     provider STRING,
     linked_date DATETIME,
-    is_verified BOOL DEFAULT FALSE
+    is_verified BOOL
 ) WITH primary_id_as_attribute="true"
-
-// ===================
-// EDGE DEFINITIONS
-// ===================
-
-// Money flow edges
+'''
+    
+    try:
+        result = conn.gsql(vertex_gsql)
+        print(result if result else "  Vertices created")
+    except Exception as e:
+        print(f"  Error: {e}")
+    
+    # Step 4: Create edge types
+    print("\n[4/5] Creating edge types...")
+    
+    edge_gsql = '''
 CREATE DIRECTED EDGE SENT (
     FROM Account, 
     TO Transaction,
@@ -107,12 +140,11 @@ CREATE DIRECTED EDGE RECEIVED (
     received_at DATETIME
 )
 
-// Account relationships
 CREATE DIRECTED EDGE LINKED_WALLET (
     FROM Account,
     TO Wallet,
     linked_date DATETIME,
-    is_primary BOOL DEFAULT FALSE
+    is_primary BOOL
 )
 
 CREATE DIRECTED EDGE OWNS_DEVICE (
@@ -121,7 +153,6 @@ CREATE DIRECTED EDGE OWNS_DEVICE (
     first_used DATETIME
 )
 
-// Transaction context edges
 CREATE DIRECTED EDGE USED_DEVICE (
     FROM Transaction,
     TO Device
@@ -138,7 +169,6 @@ CREATE DIRECTED EDGE VIA_WALLET (
     TO Wallet
 )
 
-// Wallet to Account edge (for tracing wallet transfers)
 CREATE DIRECTED EDGE WALLET_TO_ACCOUNT (
     FROM Wallet,
     TO Account,
@@ -146,15 +176,13 @@ CREATE DIRECTED EDGE WALLET_TO_ACCOUNT (
     amount FLOAT
 )
 
-// Same-person/entity links (for identity resolution)
 CREATE UNDIRECTED EDGE SAME_OWNER (
     FROM Account,
     TO Account,
     confidence FLOAT,
-    link_type STRING  // "phone_match", "email_match", "device_match", "behavior_match"
+    link_type STRING
 )
 
-// Suspicious activity edge (created by detection algorithms)
 CREATE DIRECTED EDGE SUSPICIOUS_LINK (
     FROM Account,
     TO Account,
@@ -163,11 +191,18 @@ CREATE DIRECTED EDGE SUSPICIOUS_LINK (
     risk_score FLOAT,
     evidence STRING
 )
-
-// ===================
-// CREATE GRAPH WITH ALL TYPES
-// ===================
-
+'''
+    
+    try:
+        result = conn.gsql(edge_gsql)
+        print(result if result else "  Edges created")
+    except Exception as e:
+        print(f"  Error: {e}")
+    
+    # Step 5: Create the graph with all types
+    print("\n[5/5] Creating graph...")
+    
+    graph_gsql = '''
 CREATE GRAPH MoneyMuleGraph(
     Account, Transaction, Device, ATM, Wallet,
     SENT, RECEIVED, LINKED_WALLET, OWNS_DEVICE,
@@ -175,43 +210,26 @@ CREATE GRAPH MoneyMuleGraph(
     SAME_OWNER, SUSPICIOUS_LINK
 )
 '''
-
-def setup_schema():
-    """Create the TigerGraph schema"""
-    print("=" * 60)
-    print("STEP 1: Setting up TigerGraph Schema for Money Mule Detection")
-    print("=" * 60)
     
-    conn, graph_name = get_connection()
-    
-    # Split and execute GSQL commands
-    print("\n[1/3] Dropping existing graph if present...")
     try:
-        result = conn.gsql(f'DROP GRAPH IF EXISTS {graph_name}')
-        print(result)
+        result = conn.gsql(graph_gsql)
+        print(result if result else "  Graph created")
     except Exception as e:
-        print(f"Note: {e}")
+        print(f"  Error: {e}")
     
-    print("\n[2/3] Creating schema...")
-    try:
-        # Execute the full schema creation
-        result = conn.gsql(SCHEMA_GSQL)
-        print(result)
-    except Exception as e:
-        print(f"Error: {e}")
-        return False
-    
-    print("\n[3/3] Verifying schema...")
+    # Verify
+    print("\n[Verification] Checking schema...")
     try:
         result = conn.gsql(f'USE GRAPH {graph_name}\nLS')
         print(result)
     except Exception as e:
-        print(f"Note: {e}")
+        print(f"  Note: {e}")
     
     print("\n" + "=" * 60)
     print("✓ Schema setup complete!")
     print("=" * 60)
     return True
+
 
 if __name__ == "__main__":
     setup_schema()

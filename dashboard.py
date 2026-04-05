@@ -82,9 +82,11 @@ st.markdown("""
 # TigerGraph Configuration - supports Streamlit secrets and environment variables
 def get_tigergraph_config():
     """Get TigerGraph configuration from Streamlit secrets, env vars, or defaults"""
-    # Default ngrok URL for remote TigerGraph (forwarding to port 14240)
+    # Use GSQL tunnel (port 14240) as main host for full functionality
+    # REST API (port 9000): https://87ce-152-58-57-217.ngrok-free.app
+    # GSQL Server (port 14240): https://d87b-152-58-57-217.ngrok-free.app
     defaults = {
-        "host": "https://cd6d-139-167-143-182.ngrok-free.app",
+        "host": "https://d87b-152-58-57-217.ngrok-free.app",
         "restppPort": "443",
         "gsPort": "443",
         "username": "tigergraph",

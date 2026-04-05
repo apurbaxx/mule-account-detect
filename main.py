@@ -12,6 +12,7 @@ Usage: python main.py
 """
 
 import sys
+from config import TIGERGRAPH_CONFIG
 
 def main():
     print("""
@@ -23,6 +24,7 @@ def main():
     
     # Step 1: Test Connection
     print("\n[STEP 0] Testing TigerGraph Connection...")
+    print(f"  Host: {TIGERGRAPH_CONFIG['host']}")
     try:
         from config import get_connection
         conn, graph_name = get_connection()
@@ -30,9 +32,12 @@ def main():
         print("✓ Connection successful!")
     except Exception as e:
         print(f"✗ Connection failed: {e}")
-        print("\nPlease ensure TigerGraph is running:")
-        print("  - REST API: http://localhost:9000")
-        print("  - GraphStudio: http://localhost:14240")
+        print(f"\nPlease ensure TigerGraph is running and accessible:")
+        print(f"  - Host: {TIGERGRAPH_CONFIG['host']}")
+        print(f"  - REST Port: {TIGERGRAPH_CONFIG['restppPort']}")
+        print(f"  - GS Port: {TIGERGRAPH_CONFIG['gsPort']}")
+        print("\nFor remote deployment, set environment variables:")
+        print("  TIGERGRAPH_HOST, TIGERGRAPH_REST_PORT, TIGERGRAPH_GS_PORT")
         sys.exit(1)
     
     # Step 1: Setup Schema
@@ -87,10 +92,10 @@ def main():
 ╔══════════════════════════════════════════════════════════════════╗
 ║                    ALL STEPS COMPLETED!                          ║
 ╠══════════════════════════════════════════════════════════════════╣
-║  View your graph at: http://localhost:14240                      ║
+║  TigerGraph Host: {host:<43}║
 ║  Graph name: MoneyMuleGraph                                      ║
 ╚══════════════════════════════════════════════════════════════════╝
-    """)
+    """.format(host=TIGERGRAPH_CONFIG['host']))
 
 
 if __name__ == "__main__":

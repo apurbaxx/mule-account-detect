@@ -264,7 +264,7 @@ def run_detection():
     print("\n" + "=" * 70)
     print("📋 DETECTION COMPLETE - SUMMARY FOR JUDGES")
     print("=" * 70)
-    print("""
+    print(f"""
 ╔════════════════════════════════════════════════════════════════════╗
 ║                    DETECTION RESULTS SUMMARY                       ║
 ╠════════════════════════════════════════════════════════════════════╣
@@ -279,7 +279,7 @@ def run_detection():
 ╚════════════════════════════════════════════════════════════════════╝
 
 NEXT STEPS:
-1. View graph visualization: http://localhost:14240
+1. View graph visualization: {TIGERGRAPH_CONFIG['host']}
 2. Explore MULE accounts in GraphStudio
 3. See how devices DEV_SUS_001 & DEV_SUS_002 link multiple mule accounts
 """)

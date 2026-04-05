@@ -110,7 +110,7 @@ def run_live_detection():
     conn, graph_name = get_connection()
     
     # Show what we're analyzing
-    print(f"{Colors.CYAN}Connecting to TigerGraph at localhost:9000...{Colors.END}")
+    print(f"{Colors.CYAN}Connecting to TigerGraph at {TIGERGRAPH_CONFIG['host']}...{Colors.END}")
     time.sleep(0.5)
     print(f"{Colors.GREEN}Connection successful! Using graph: {graph_name}{Colors.END}\n")
     
@@ -318,7 +318,7 @@ def print_conclusion():
     {Colors.END}
     
     {Colors.CYAN}
-    📊 View the graph visualization at: http://localhost:14240
+    📊 View the graph visualization at: {TIGERGRAPH_CONFIG['host']}
     
     🔍 Explore these suspicious patterns:
        • MULE_A1_* accounts (Mobile → Wallet → ATM in 25 min)

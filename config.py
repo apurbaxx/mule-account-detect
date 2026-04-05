@@ -15,15 +15,17 @@ Run these scripts in order:
 """
 
 import pyTigerGraph as tg
+import os
 
-# TigerGraph Configuration
+# TigerGraph Configuration - supports environment variables for cloud deployment
+# For Streamlit Community Cloud, set these in secrets.toml or environment
 TIGERGRAPH_CONFIG = {
-    "host": "http://localhost",
-    "restppPort": "9000",
-    "gsPort": "14240",
-    "username": "tigergraph",
-    "password": "tigergraph",
-    "graphName": "MoneyMuleGraph"
+    "host": os.environ.get("TIGERGRAPH_HOST", "https://1e27-139-167-143-182.ngrok-free.app"),
+    "restppPort": os.environ.get("TIGERGRAPH_REST_PORT", "443"),
+    "gsPort": os.environ.get("TIGERGRAPH_GS_PORT", "443"),
+    "username": os.environ.get("TIGERGRAPH_USERNAME", "tigergraph"),
+    "password": os.environ.get("TIGERGRAPH_PASSWORD", "tigergraph"),
+    "graphName": os.environ.get("TIGERGRAPH_GRAPH", "MoneyMuleGraph")
 }
 
 def get_connection(use_graph=False):
@@ -44,6 +46,10 @@ def get_connection(use_graph=False):
 if __name__ == "__main__":
     print("Testing TigerGraph Connection...")
     print("=" * 50)
+    print(f"Host: {TIGERGRAPH_CONFIG['host']}")
+    print(f"REST Port: {TIGERGRAPH_CONFIG['restppPort']}")
+    print(f"GS Port: {TIGERGRAPH_CONFIG['gsPort']}")
+    print("=" * 50)
     
     try:
         conn, graph_name = get_connection()
@@ -55,6 +61,9 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"✗ Connection failed: {e}")
         print("\nPlease verify:")
-        print("  1. TigerGraph is running")
-        print("  2. REST API is available at http://localhost:9000")
+        print("  1. TigerGraph is running and accessible")
+        print(f"  2. REST API is available at {TIGERGRAPH_CONFIG['host']}")
         print("  3. Credentials are correct")
+        print("\nFor remote TigerGraph, set environment variables:")
+        print("  TIGERGRAPH_HOST, TIGERGRAPH_REST_PORT, TIGERGRAPH_GS_PORT")
+        print("  TIGERGRAPH_USERNAME, TIGERGRAPH_PASSWORD, TIGERGRAPH_GRAPH")

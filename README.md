@@ -134,11 +134,8 @@ Dashboard query showing all accounts with their risk indicators
 
 ### Setup
 ```bash
-# Install pyTigerGraph if not already installed
-pip install pyTigerGraph
-
-# Navigate to project directory
-cd "c:\Users\apurb\Documents\VIT\SEM-2\IIT DELHI HACKATHON"
+# Install dependencies
+pip install -r requirements.txt
 
 # Run all steps at once
 python main.py
@@ -152,17 +149,42 @@ python 04_run_detection.py    # Run detection
 ```
 
 ### Configuration
-Edit `config.py` to change TigerGraph connection settings:
-```python
-TIGERGRAPH_CONFIG = {
-    "host": "http://localhost",
-    "restppPort": "9000",
-    "gsPort": "14240",
-    "userName": "tigergraph",
-    "password": "tigergraph",
-    "graphName": "MoneyMuleGraph"
-}
+
+The system supports multiple configuration methods:
+
+#### Option 1: Environment Variables
+```bash
+export TIGERGRAPH_HOST="https://your-ngrok-url.ngrok-free.app"
+export TIGERGRAPH_REST_PORT="443"
+export TIGERGRAPH_GS_PORT="443"
+export TIGERGRAPH_USERNAME="tigergraph"
+export TIGERGRAPH_PASSWORD="tigergraph"
+export TIGERGRAPH_GRAPH="MoneyMuleGraph"
 ```
+
+#### Option 2: Edit config.py
+The default configuration connects to the ngrok-exposed TigerGraph instance.
+
+### Streamlit Community Cloud Deployment
+
+To deploy the dashboard on Streamlit Community Cloud:
+
+1. Push this repo to GitHub
+2. Go to [share.streamlit.io](https://share.streamlit.io)
+3. Deploy from your GitHub repo
+4. In App Settings → Secrets, add:
+
+```toml
+[tigergraph]
+host = "https://your-ngrok-url.ngrok-free.app"
+restppPort = "443"
+gsPort = "443"
+username = "tigergraph"
+password = "tigergraph"
+graphname = "MoneyMuleGraph"
+```
+
+**Important:** Your ngrok URL must be running and accessible for the dashboard to work.
 
 ## Sample Data
 

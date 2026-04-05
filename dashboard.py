@@ -79,17 +79,55 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# TigerGraph Configuration - supports Streamlit secrets and environment variables
+def get_tigergraph_config():
+    """Get TigerGraph configuration from Streamlit secrets, env vars, or defaults"""
+    # Default ngrok URL for remote TigerGraph
+    defaults = {
+        "host": "https://1e27-139-167-143-182.ngrok-free.app",
+        "restppPort": "443",
+        "gsPort": "443",
+        "username": "tigergraph",
+        "password": "tigergraph",
+        "graphname": "MoneyMuleGraph"
+    }
+    
+    # Try Streamlit secrets first (for Streamlit Community Cloud)
+    try:
+        if hasattr(st, 'secrets') and 'tigergraph' in st.secrets:
+            return {
+                "host": st.secrets.tigergraph.get("host", defaults["host"]),
+                "restppPort": st.secrets.tigergraph.get("restppPort", defaults["restppPort"]),
+                "gsPort": st.secrets.tigergraph.get("gsPort", defaults["gsPort"]),
+                "username": st.secrets.tigergraph.get("username", defaults["username"]),
+                "password": st.secrets.tigergraph.get("password", defaults["password"]),
+                "graphname": st.secrets.tigergraph.get("graphname", defaults["graphname"])
+            }
+    except Exception:
+        pass
+    
+    # Fall back to environment variables
+    return {
+        "host": os.environ.get("TIGERGRAPH_HOST", defaults["host"]),
+        "restppPort": os.environ.get("TIGERGRAPH_REST_PORT", defaults["restppPort"]),
+        "gsPort": os.environ.get("TIGERGRAPH_GS_PORT", defaults["gsPort"]),
+        "username": os.environ.get("TIGERGRAPH_USERNAME", defaults["username"]),
+        "password": os.environ.get("TIGERGRAPH_PASSWORD", defaults["password"]),
+        "graphname": os.environ.get("TIGERGRAPH_GRAPH", defaults["graphname"])
+    }
+
 # TigerGraph Connection
 @st.cache_resource
 def get_connection():
     """Create TigerGraph connection"""
+    config = get_tigergraph_config()
     conn = tg.TigerGraphConnection(
-        host='http://localhost',
-        restppPort='9000',
-        gsPort='14240',
-        username='tigergraph',
-        password='tigergraph',
-        graphname='MoneyMuleGraph'
+        host=config["host"],
+        restppPort=config["restppPort"],
+        gsPort=config["gsPort"],
+        username=config["username"],
+        password=config["password"],
+        graphname=config["graphname"]
     )
     return conn
 
@@ -347,12 +385,14 @@ def main():
     st.sidebar.markdown("### Graph Connection")
     
     # Connect to TigerGraph
+    config = get_tigergraph_config()
     try:
         conn = get_connection()
-        st.sidebar.success("Connected to TigerGraph")
+        st.sidebar.success(f"Connected to TigerGraph")
+        st.sidebar.caption(f"Host: {config['host'][:40]}...")
     except Exception as e:
         st.sidebar.error(f"Connection failed: {e}")
-        st.error("Cannot connect to TigerGraph. Please ensure it's running at localhost:9000")
+        st.error(f"Cannot connect to TigerGraph at {config['host']}. Please ensure it's running and accessible.")
         return
     
     # Page routing

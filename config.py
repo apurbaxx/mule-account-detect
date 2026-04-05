@@ -20,7 +20,7 @@ import os
 # TigerGraph Configuration - supports environment variables for cloud deployment
 # For Streamlit Community Cloud, set these in secrets.toml or environment
 TIGERGRAPH_CONFIG = {
-    "host": os.environ.get("TIGERGRAPH_HOST", "https://1e27-139-167-143-182.ngrok-free.app"),
+    "host": os.environ.get("TIGERGRAPH_HOST", "https://cd6d-139-167-143-182.ngrok-free.app"),
     "restppPort": os.environ.get("TIGERGRAPH_REST_PORT", "443"),
     "gsPort": os.environ.get("TIGERGRAPH_GS_PORT", "443"),
     "username": os.environ.get("TIGERGRAPH_USERNAME", "tigergraph"),

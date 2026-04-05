@@ -82,9 +82,9 @@ st.markdown("""
 # TigerGraph Configuration - supports Streamlit secrets and environment variables
 def get_tigergraph_config():
     """Get TigerGraph configuration from Streamlit secrets, env vars, or defaults"""
-    # Default ngrok URL for remote TigerGraph
+    # Default ngrok URL for remote TigerGraph (forwarding to port 14240)
     defaults = {
-        "host": "https://1e27-139-167-143-182.ngrok-free.app",
+        "host": "https://cd6d-139-167-143-182.ngrok-free.app",
         "restppPort": "443",
         "gsPort": "443",
         "username": "tigergraph",

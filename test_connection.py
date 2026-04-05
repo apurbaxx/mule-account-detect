@@ -2,7 +2,7 @@ import pyTigerGraph as tg
 import os
 
 # Get TigerGraph config from environment or use defaults
-host = os.environ.get("TIGERGRAPH_HOST", "https://1e27-139-167-143-182.ngrok-free.app")
+host = os.environ.get("TIGERGRAPH_HOST", "https://cd6d-139-167-143-182.ngrok-free.app")
 rest_port = os.environ.get("TIGERGRAPH_REST_PORT", "443")
 gs_port = os.environ.get("TIGERGRAPH_GS_PORT", "443")
 username = os.environ.get("TIGERGRAPH_USERNAME", "tigergraph")

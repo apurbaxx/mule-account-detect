@@ -391,7 +391,7 @@ def main():
     try:
         conn = get_connection()
         st.sidebar.success(f"Connected to TigerGraph")
-        st.sidebar.caption(f"Host: {config['host'][:40]}...")
+        st.sidebar.caption(f"Host: {config['host']}")
     except Exception as e:
         st.sidebar.error(f"Connection failed: {e}")
         st.error(f"Cannot connect to TigerGraph at {config['host']}. Please ensure it's running and accessible.")
